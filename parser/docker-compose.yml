@@ -1,0 +1,59 @@
+version: '3.0'
+
+services:
+  nginx:
+    build:
+      context: ./docker/nginx
+    volumes:
+      - ./:/project
+    container_name: ${APP_NAME}-nginx
+    restart: always
+    ports:
+      - "84:80"
+    command: nginx -g 'daemon off;'
+
+  php-fpm:
+    build:
+      context: ./docker/php-fpm
+    environment:
+      XDEBUG_CONFIG: "remote_host=172.18.18.1 remote_enable=1 remote_autostart=off  remote_port=9008"
+      PHP_IDE_CONFIG: "serverName=first"
+    volumes:
+      - ./:/project
+    container_name: ${APP_NAME}-php-fpm
+    depends_on:
+      - db
+
+  php-cli:
+    build:
+      context: ./docker/php-cli
+    volumes:
+      - ./:/project
+    command: sleep 10000
+    container_name: ${APP_NAME}-php-cli
+
+#  node-cli:
+#    container_name: ${APP_NAME}-node-cli
+#    build:
+#      context: ./docker/node-cli
+#    volumes:
+#      - ./:/project
+#
+
+  db:
+    container_name: ${APP_NAME}-db
+    image: mariadb:10.3
+    volumes:
+      - ./data/db/mysql://var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+      - MYSQL_PASSWORD=dev
+      - MYSQL_USER=dev
+      - MYSQL_DATABASE=dev
+      - MARIADB_ROOT_PASSWORD=root
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+
+volumes:
+  db:
