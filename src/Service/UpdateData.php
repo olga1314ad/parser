@@ -2,6 +2,8 @@
 
 namespace App\Service;
 use App\Entity\Category;
+use App\Entity\Currency;
+use App\Entity\DeliveryOptions;
 use App\Entity\Shop;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -23,9 +25,12 @@ class UpdateData
         $data = file_get_contents('https://old.iport.ru/mindbox_iport.xml');
         $xml = simplexml_load_string($data);
 
+        $deliveryOptions = 'delivery-options';
+
         $this->updateShop($xml);
         $this->updateCategories($xml->shop->categories->category);
-        $this->updateCurrencies($xml->shop->currencies);
+        $this->updateCurrencies($xml->shop->currencies->currency);
+        $this->updateDeliveryOptions($xml->shop->$deliveryOptions);
         var_dump($xml); die();
     }
 
@@ -62,8 +67,6 @@ class UpdateData
            $one_category->setTitle($category[0]);
            $this->manager->persist($one_category);
            $this->manager->flush();
-
-
        }
 
     }
@@ -74,7 +77,30 @@ class UpdateData
      */
     private function updateCurrencies($xml)
     {
+        foreach($xml->attributes() as $key=>$value) {
+            if($key === 'id') {
+                $currency = $this->manager->getRepository(Currency::class)->findOneBy(['name' => $value]) ?? new Currency();
+                $currency->setName($value);
+            }
+            if($key === 'rate'){
+                $currency->setRate((int)$value);
+            }
+        }
 
+        $this->manager->persist($currency);
+        $this->manager->flush();
+    }
+
+    private function updateDeliveryOptions($xml)
+    {
+        foreach ($xml->option as $option){
+            var_dump($option);
+            $one_option = $this->manager->getRepository(DeliveryOptions::class)->findOneBy(['days' => $option->attributes()->days]) ?? new DeliveryOptions();
+            $one_option->setDays($option->attributes()->days);
+            $one_option->setCost((int)$option->attributes()->cost);
+            $this->manager->persist($one_option);
+            $this->manager->flush();
+        }
     }
 
     /**

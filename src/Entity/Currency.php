@@ -29,6 +29,11 @@ class Currency
      */
     private $store;
 
+    /**
+     * @ORM\Column(type="string", length=10)
+     */
+    private $name;
+
     public function __construct()
     {
         $this->store = new ArrayCollection();
@@ -78,6 +83,18 @@ class Currency
                 $store->setCurrency(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
 
         return $this;
     }
