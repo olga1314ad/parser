@@ -79,7 +79,7 @@ class Offer
     private $category;
 
     /**
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=100)
      */
     private $vendor_code;
 
