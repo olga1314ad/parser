@@ -6,10 +6,10 @@ services:
       context: docker/nginx
     volumes:
       - ./:/project
-    container_name: ${APP_NAME}-nginx
+    container_name: parse-nginx
     restart: always
     ports:
-      - "84:80"
+      - "85:80"
     command: nginx -g 'daemon off;'
 
   php-fpm:
@@ -20,9 +20,9 @@ services:
       PHP_IDE_CONFIG: "serverName=first"
     volumes:
       - ./:/project
-    container_name: ${APP_NAME}-php-fpm
+    container_name: parse-php-fpm
     depends_on:
-      - db
+      - database
 
   php-cli:
     build:
@@ -30,17 +30,18 @@ services:
     volumes:
       - ./:/project
     command: sleep 10000
-    container_name: ${APP_NAME}-php-cli
+    container_name: parse-php-cli
 
-#  node-cli:
-#    container_name: ${APP_NAME}-node-cli
-#    build:
-#      context: ./docker/node-cli
-#    volumes:
-#      - ./:/project
-#
+  node-cli:
+    container_name: parsenode-cli
+    build:
+      context: ./docker/node-cli
+    volumes:
+      - ./:/project
 
-  db:
+
+###> doctrine/doctrine-bundle ###
+  database:
     container_name: ${APP_NAME}-db
     image: mariadb:10.3
     volumes:
@@ -55,22 +56,6 @@ services:
       - MARIADB_ROOT_PASSWORD=root
     command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
 
-###> doctrine/doctrine-bundle ###
-  database:
-    image: postgres:${POSTGRES_VERSION:-13}-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      # You should definitely change the password in production
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ChangeMe}
-      POSTGRES_USER: ${POSTGRES_USER:-symfony}
-    volumes:
-      - db-data:/var/lib/postgresql/data:rw
-      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
-      # - ./docker/db/data:/var/lib/postgresql/data:rw
-###< doctrine/doctrine-bundle ###
-
 volumes:
-  db:
+  database:
 ###> doctrine/doctrine-bundle ###
-  db-data:
-###< doctrine/doctrine-bundle ###
