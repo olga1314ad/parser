@@ -46,23 +46,18 @@ class UpdateData
 
     /**
      * @param $xml
-     * @return void
      */
     private function updateCategories($xml)
     {
+        var_dump($xml);
        foreach ($xml as $category){
 
-           foreach ($category->attributes() as $key=>$value) {
-
-               if($key === 'id') {
-                   $one_category = $this->manager->getRepository(Category::class)->findOneBy(['id' => (int)$value]) ?? new Category();
-                   $one_category->setId((int)$value);
-               }
-               if($key === 'parentId'){
-                   $parent_category= $this->manager->getRepository(Category::class)->findOneBy(['id' => (int)$value]);
-                   $one_category->setParent($parent_category);
-               }
-           }
+           $one_category = $this->manager->getRepository(Category::class)->findOneBy(['id' => (int)$category->attributes()->id]) ?? new Category();
+           $one_category->setId((int)$category->attributes()->id);
+          if($category->attributes()->parentId){
+               $parent_category= $this->manager->getRepository(Category::class)->findOneBy(['id' => (int)$category->attributes()->parentId]);
+               $one_category->setParent($parent_category);
+          }
 
            $one_category->setTitle($category[0]);
            $this->manager->persist($one_category);
@@ -94,7 +89,6 @@ class UpdateData
     private function updateDeliveryOptions($xml)
     {
         foreach ($xml->option as $option){
-            var_dump($option);
             $one_option = $this->manager->getRepository(DeliveryOptions::class)->findOneBy(['days' => $option->attributes()->days]) ?? new DeliveryOptions();
             $one_option->setDays($option->attributes()->days);
             $one_option->setCost((int)$option->attributes()->cost);
