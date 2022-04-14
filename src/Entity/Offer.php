@@ -96,6 +96,7 @@ class Offer
 
     /**
      * @ORM\ManyToMany(targetEntity=SalesNotes::class, inversedBy="offers")
+     *  @ORM\JoinTable(name = "offer_to_notes")
      */
     private $sales_notes;
 

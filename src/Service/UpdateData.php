@@ -5,6 +5,8 @@ use App\Entity\Category;
 use App\Entity\Currency;
 use App\Entity\DeliveryOptions;
 use App\Entity\Offer;
+use App\Entity\Params;
+use App\Entity\SalesNotes;
 use App\Entity\Shop;
 use App\Entity\Vendor;
 use Doctrine\Persistence\ManagerRegistry;
@@ -55,7 +57,7 @@ class UpdateData
     {
        foreach ($xml as $category){
 
-           $one_category = $this->manager->getRepository(Category::class)->findOneBy(['id' => (int)$category->attributes()->id]) ?? new Category();
+           $one_category = $this->manager->getRepository(Category::class)->findOneBy(['id' => (int)$category->attributes()->id]);
            $one_category->setId((int)$category->attributes()->id);
             if($category->attributes()->parentId){
                $parent_category= $this->manager->getRepository(Category::class)->findOneBy(['id' => (int)$category->attributes()->parentId]);
@@ -76,22 +78,28 @@ class UpdateData
     private function updateCurrencies($xml)
     {
 
-        $currency = $this->manager->getRepository(Currency::class)->findOneBy(['name' => $xml->attributes()->id]) ?? new Currency();
-        $currency->setName($xml->attributes()->id);
-        $currency->setRate((int)$xml->attributes()->rate);
+        $currency = $this->manager->getRepository(Currency::class)->findOneBy(['name' => $xml->attributes()->id]);
+        if($currency == null){
+            $currency =  new Currency();
+            $currency->setName($xml->attributes()->id);
+            $currency->setRate((int)$xml->attributes()->rate);
 
-        $this->manager->persist($currency);
-        $this->manager->flush();
+            $this->manager->persist($currency);
+            $this->manager->flush();
+        }
     }
 
     private function updateDeliveryOptions($xml)
     {
         foreach ($xml->option as $option){
-            $one_option = $this->manager->getRepository(DeliveryOptions::class)->findOneBy(['days' => $option->attributes()->days]) ?? new DeliveryOptions();
-            $one_option->setDays($option->attributes()->days);
-            $one_option->setCost((int)$option->attributes()->cost);
-            $this->manager->persist($one_option);
-            $this->manager->flush();
+            $one_option = $this->manager->getRepository(DeliveryOptions::class)->findOneBy(['days' => $option->attributes()->days,'cost' => (int)$option->attributes()->cost]);
+            if($one_option == null){
+                $one_option = new DeliveryOptions();
+                $one_option->setDays($option->attributes()->days);
+                $one_option->setCost((int)$option->attributes()->cost);
+                $this->manager->persist($one_option);
+                $this->manager->flush();
+            }
         }
     }
 
@@ -125,7 +133,7 @@ class UpdateData
                 $this->manager->getRepository(Category::class)->findOneBy(['id' => $offer->categoryId])
             );
             $one_offer->setVendor(
-                $this->manager->getRepository(Vendor::class)->findOneBy(['id' => 1])
+                $this->parseVendor($offer->vendor)
             );
             $one_offer->setShop(
                 $this->manager->getRepository(Shop::class)->findOneBy(['id' => $shop_id])
@@ -133,16 +141,72 @@ class UpdateData
 
             $this->manager->persist($one_offer);
             $this->manager->flush();
+
+            $this->parseSalesNotes($offer->sales_notes, $one_offer);
+
+            $this->parseParams($offer->param, $one_offer);
         }
     }
+
+
 
     /**
      * @param $xml
      * @return void
      */
-    private function parseDeliveryOptions($xml)
+    private function parseVendor($name)
     {
 
+        $vendor =  $this->manager->getRepository(Vendor::class)->findOneBy(['name' => $name]);
+        if( $vendor == null){
+            $vendor->setName($name);
+            $this->manager->persist($vendor);
+            $this->manager->flush();
+        }
+
+        return $vendor;
+    }
+
+    /**
+     * @param $string
+     * @param Offer $one_offer
+     * @return void
+     */
+    private function parseSalesNotes( $string, Offer $one_offer){
+        $string = str_replace('.', "," , $string);
+        $array = explode(', ', $string);
+        foreach ($array as $one){
+            if($one != ''){
+                $one =mb_strtolower( str_replace(",", '', $one));
+                $sale_note = $this->manager->getRepository(SalesNotes::class)->findOneBy(['name' =>$one]) ?? new SalesNotes();
+                $sale_note->setName($one);
+                $sale_note->addOffer($one_offer);
+                $this->manager->persist($sale_note);
+                $this->manager->flush();
+            }
+        }
+
+    }
+
+    /**
+     * @param $xml
+     * @param Offer $one_offer
+     * @return void
+     */
+    private function parseParams($xml, Offer $one_offer){
+        foreach ($xml as $param){
+            $one_param = $this->manager->getRepository(Params::class)->findOneBy(['name' =>$param->attributes()->name, 'value' => $param, 'offer' => $one_offer->getId()]);
+            if($one_param == null){
+                $one_param =new Params();
+                $one_param->setName($param->attributes()->name);
+                $one_param->setValue($param);
+                $one_param->setOffer($one_offer);
+                $this->manager->persist($one_param);
+                $this->manager->flush();
+            }
+
+
+        }
     }
 
 }

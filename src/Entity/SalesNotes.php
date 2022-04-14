@@ -20,12 +20,13 @@ class SalesNotes
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=50)
      */
     private $name;
 
     /**
      * @ORM\ManyToMany(targetEntity=Offer::class, mappedBy="sales_notes")
+     * @ORM\JoinTable(name = "offer_to_notes")
      */
     private $offers;
 
