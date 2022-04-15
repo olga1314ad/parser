@@ -39,6 +39,11 @@ class Shop
      */
     private $offers;
 
+    /**
+     * @ORM\Column(type="string", length=40)
+     */
+    private $updatedAt;
+
     public function __construct()
     {
         $this->offers = new ArrayCollection();
@@ -114,4 +119,17 @@ class Shop
 
         return $this;
     }
+
+    public function getUpdatedAt(): ?string
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(string $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
 }
