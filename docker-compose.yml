@@ -42,12 +42,12 @@ services:
 
 ###> doctrine/doctrine-bundle ###
   database:
-    container_name: ${APP_NAME}-db
+    container_name: parse-db
     image: mariadb:10.3
     volumes:
       - ./data/db/mysql://var/lib/mysql
     ports:
-      - "3306:3306"
+      - "3356:3306"
     restart: always
     environment:
       - MYSQL_PASSWORD=dev
