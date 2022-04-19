@@ -74,8 +74,6 @@ class UpdateData
     {
        foreach ($xml as $category){
            $one_category = $this->manager->getRepository(Category::class)->findOneBy(['id' => (int)$category->attributes()->id]) ?? new Category();
-
-           $one_category = $this->manager->getRepository(Category::class)->findOneBy(['id' => (int)$category->attributes()->id]);
            $one_category->setId((int)$category->attributes()->id);
             if($category->attributes()->parentId){
                $parent_category= $this->manager->getRepository(Category::class)->findOneBy(['id' => (int)$category->attributes()->parentId]);
