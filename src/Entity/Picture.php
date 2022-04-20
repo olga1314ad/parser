@@ -2,10 +2,16 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\PictureRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ApiResource(
+ *      normalizationContext={"groups"={"read"}},
+ *      denormalizationContext={"groups"={"write"}}
+ *     )
  * @ORM\Entity(repositoryClass=PictureRepository::class)
  */
 class Picture
@@ -14,17 +20,20 @@ class Picture
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=100)
+     * @Groups({"read","write"})
      */
     private $name;
 
     /**
      * @ORM\ManyToOne(targetEntity=Offer::class, inversedBy="pictures")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"write"})
      */
     private $offer;
 
