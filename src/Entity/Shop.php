@@ -77,7 +77,7 @@ class Shop
         return $this;
     }
 
-    public function getCompany(): ?array
+    public function getCompany(): ?string
     {
         return $this->company;
     }

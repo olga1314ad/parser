@@ -7,7 +7,7 @@ use App\Repository\OfferRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-//use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -31,12 +31,14 @@ class Offer
     /**
      * @ORM\Column(type="string", length=150)
      * @Groups({"read","write"})
+     * @Assert\NotBlank
      */
     private $url;
 
     /**
      * @ORM\Column(type="integer")
      * @Groups({"read","write"})
+     * @Assert\NotNull
      */
     private $price;
 
@@ -44,24 +46,28 @@ class Offer
      * @ORM\ManyToOne(targetEntity=Currency::class, inversedBy="store")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"read","write"})
+     * @Assert\NotNull
      */
     private $currency;
 
     /**
      * @ORM\Column(type="boolean")
      * @Groups({"read","write"})
+     * @Assert\Type("bool")
      */
     private $store;
 
     /**
      * @ORM\Column(type="boolean")
      * @Groups({"read","write"})
+     * @Assert\Type("bool")
      */
     private $pickup;
 
     /**
      * @ORM\Column(type="boolean")
      * @Groups({"read","write"})
+     * @Assert\Type("bool")
      */
     private $delivery;
 
@@ -69,24 +75,28 @@ class Offer
      * @ORM\ManyToOne(targetEntity=DeliveryOptions::class, inversedBy="offers")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"read","write"})
+     * @Assert\NotNull
      */
     private $delivery_option;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"read","write"})
+     * @Assert\NotBlank
      */
     private $model;
 
     /**
      * @ORM\Column(type="string", length=100)
      * @Groups({"read","write"})
+     * @Assert\NotBlank
      */
     private $typePrefix;
 
     /**
      * @ORM\Column(type="text")
      * @Groups({"read","write"})
+     * @Assert\NotBlank
      */
     private $description;
 
@@ -94,19 +104,21 @@ class Offer
      * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="offers")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"read","write"})
-     *
+     * @Assert\NotNull
      */
     private $category;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=100, nullable=true)
      * @Groups({"read","write"})
+     *
      */
     private $vendor_code;
 
     /**
      * @ORM\Column(type="string", length=20)
      * @Groups({"read","write"})
+     * @Assert\NotBlank
      */
     private $barcode;
 
@@ -140,6 +152,7 @@ class Offer
      * @ORM\ManyToOne(targetEntity=Shop::class, inversedBy="offers")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"read","write"})
+     * @Assert\NotNull
      */
     private $shop;
 
