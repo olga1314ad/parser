@@ -2,12 +2,17 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\DeliveryOptionsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ *   @ApiResource(
+ *      normalizationContext={"groups"={"read"}}
+ *     )
  * @ORM\Entity(repositoryClass=DeliveryOptionsRepository::class)
  */
 class DeliveryOptions
@@ -16,16 +21,19 @@ class DeliveryOptions
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"read"})
      */
     private $cost;
 
     /**
      * @ORM\Column(type="string", length=20)
+     * @Groups({"read"})
      */
     private $days;
 

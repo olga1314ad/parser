@@ -2,13 +2,20 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\Types\Integer;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ApiResource(
+ *      normalizationContext={"groups"={"read"}},
+ *      denormalizationContext={"groups"={"write"}}
+ * )
  * @ORM\Entity(repositoryClass=CategoryRepository::class)
  */
 class Category
@@ -16,16 +23,20 @@ class Category
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
+     * @Groups({"category:read","write"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Groups({"read","write"})
      */
     private $title;
 
     /**
      * @ORM\OneToMany(targetEntity=Offer::class, mappedBy="category")
+     * @Groups({"category:read"})
      */
     private $offers;
 
@@ -33,11 +44,13 @@ class Category
 
     /**
      * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="categories")
+     * @Groups({"read", "write"})
      */
     private $parent;
 
     /**
      * @ORM\OneToMany(targetEntity=Category::class, mappedBy="parent")
+     * @Groups({"category:read"})
      */
     private $categories;
 

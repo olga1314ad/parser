@@ -2,12 +2,18 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ShopRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ApiResource(
+ *      normalizationContext={"groups"={"read"}}
+ *     )
  * @ORM\Entity(repositoryClass=ShopRepository::class)
  */
 class Shop
@@ -16,21 +22,25 @@ class Shop
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=100)
+     * @Groups({"read"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=100)
+     * @Groups({"read"})
      */
     private $company;
 
     /**
      * @ORM\Column(type="string", length=120)
+     * @Groups({"read"})
      */
     private $url;
 
@@ -41,6 +51,7 @@ class Shop
 
     /**
      * @ORM\Column(type="string", length=40)
+     * @Groups({"read"})
      */
     private $updatedAt;
 
@@ -66,7 +77,7 @@ class Shop
         return $this;
     }
 
-    public function getCompany(): ?array
+    public function getCompany(): ?string
     {
         return $this->company;
     }
